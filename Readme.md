@@ -13,6 +13,7 @@ This guide provides comprehensive instructions for setting up and using your thi
 - [Usage](#usage)
 
 
+After all set up run this command to start the application  ```python -m app.app ```  
 ## Prerequisites
 Before you begin, ensure you have the following installed on your machine:
 
