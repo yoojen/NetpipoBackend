@@ -1,7 +1,7 @@
 from app.models import Employee
 from app import db
 from flask import request, abort, make_response
-from flask_restful import Resource, fields, marshal
+from flask_restful import Resource, fields, marshal, reqparse
 from flask import Flask
 from flask_restful import Api
 
@@ -44,14 +44,27 @@ class EmployeeResource(Resource):
         }, 200)
 
     def post(self):
-        name = request.form['name']
-        email = request.form['email']
-        position = request.form['position']
-        salary = request.form['salary']
+        name = request.form.get('name')
+        email = request.form.get('email')
+        position = request.form.get('position')
+        salary = request.form.get('salary')
 
         if (not name) or (not email) or (not position) or (not salary):
-            return {"status": "It is not okay here"}
-        return {"status": "We are creating user..."}
+            return make_response({"message": "Please provide all required fields"}, 400)
+
+        exist = db.session.query(Employee).filter_by(email=email).first()
+        if exist:
+            return make_response({"message": "The email is already registered"}, 409)
+
+        try:
+            employee = Employee(name=name, email=email, salary=salary)
+            db.session.add(employee)
+            db.session.commit()
+        except Exception as e:
+            print(e)
+            return make_response({"message": "Creating employee failed"}, 400)
+
+        return make_response({"status": f"User created with ID {employee.id}"}, 201)
 
     def update(self, employee_id):
         if not employee_id:
