@@ -120,7 +120,7 @@ class EmployeeResource(Resource):
 
 class UserResource(Resource):
 
-    # @jwt_optional_for_tests
+    @jwt_optional_for_tests
     def put(self, user_id=None):
         if not user_id:
             return make_response({"message": "Please provide user id"}, 400)
