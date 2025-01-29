@@ -91,12 +91,12 @@ You must create use profile before making POST, PUT or DELETE request. Thus, fol
 3. Set the request method (GET, POST, PUT, DELETE).
 
 4. Enter the request URL
-    for employees http://localhost:5000/employee/1
-    for auth http://localhost:5000/register/ or http://localhost:5000/login/
+    for employees http://localhost:5000/employee/1  
+    for auth http://localhost:5000/register/ or http://localhost:5000/login/  
     for users http://localhost:5000/users/ 
 
-5. Set the request headers, including the Authorization header for JWT token.
+6. Set the request headers, including the Authorization header for JWT token.
 
-6. Set the request body (if applicable) in form-data format.
+7. Set the request body (if applicable) in form-data format.
 
-7. Send the request and verify the response.
+8. Send the request and verify the response.
