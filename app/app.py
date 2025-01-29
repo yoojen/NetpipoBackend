@@ -4,15 +4,19 @@ from flask import request, abort, make_response
 from flask_restful import Resource, fields, marshal
 from flask import Flask
 from flask_restful import Api
-from flask_jwt_extended import create_access_token, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
 from flask_restful import Resource
 
 
 app = Flask(__name__)
+jwt = JWTManager(app)
 api = Api(app)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:EugeneMysql123.@127.0.0.1:3306/netpipo"
+
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://root:EugeneMysql123.@127.0.0.1:3306/netpipo"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JWT_SECRET_KEY'] = 'THIS IS SECURITY KEY'
+app.config["JWT_TOKEN_LOCATION"] = ["headers"]
 db.init_app(app)
 
 
@@ -24,8 +28,6 @@ employee_fields = {
 
 
 class EmployeeResource(Resource):
-    # def __init__(self):
-    #     self.active_user = get_jwt_identity()
 
     def get(self, employee_id=None):
         if employee_id:
@@ -44,6 +46,7 @@ class EmployeeResource(Resource):
             "data": [marshal(e, employee_fields) for e in employees]
         }, 200)
 
+    @jwt_required()
     def post(self):
         name = request.form.get('name')
         email = request.form.get('email')
@@ -67,6 +70,7 @@ class EmployeeResource(Resource):
 
         return make_response({"status": f"User created with ID {employee.id}"}, 201)
 
+    @jwt_required()
     def put(self, employee_id=None):
         if not employee_id:
             return make_response({"message": "Please provide an id"}, 400)
@@ -92,13 +96,21 @@ class EmployeeResource(Resource):
             return make_response({"message": "Something went wrong"}, 400)
         return make_response({"message": "Employee is updated successfully"}, 200)
 
-    def delete(self, employee_id):
+    @jwt_required()
+    def delete(self, employee_id=None):
         if not employee_id:
             return {"message": "Provide an employee id"}
-        employee = Employee.find_employee(employee_id)
-        db.session.delete(employee)
-        db.session.commit()
-        return make_response(204)
+        try:
+            employee = Employee.find_employee(employee_id)
+            if not employee:
+                return make_response({"message": "No employee found"}, 404)
+            print(employee)
+            db.session.delete(employee)
+            db.session.commit()
+            return make_response(204)
+        except Exception as e:
+            print(e)
+            return make_response({"message": "Something went wrong, unable to delete"}, 400)
 
 
 class UserResource(Resource):
@@ -159,25 +171,27 @@ class UserRegister(Resource):
 class UserLogin(Resource):
     def post(self):
         data = request.form
-        email = data.get('username')
+        email = data.get('email')
         password = data.get('password')
 
         user = User.find_existing_email(email)
+        if not user:
+            abort(404, "No user found")
         user_psd = user.check_user_pass_hash(password)
 
         if (not user) or (not user_psd):
             return make_response({'message': 'Invalid credentials'}), 401
 
-        access_token = create_access_token(identity=user.id)
-        return make_response({'access_token': access_token, "message": "Access Token generated successfully"}), 200
+        access_token = create_access_token(identity=str(user.email))
+        return make_response({'access_token': access_token, "message": "Access Token generated successfully"}, 200)
 
 
 api.add_resource(EmployeeResource,
                  '/employees/',
                  '/employees/<int:employee_id>')
 api.add_resource(UserResource, '/users/', '/auth/<int:user_id>')
-api.add_resource(UserLogin, '/auth/login')
 api.add_resource(UserRegister, '/auth/register')
+api.add_resource(UserLogin, '/auth/login')
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
