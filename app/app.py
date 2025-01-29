@@ -119,8 +119,6 @@ class EmployeeResource(Resource):
 
 
 class UserResource(Resource):
-    def get(self):
-        pass
 
     def put(self, user_id=None):
         if not user_id:

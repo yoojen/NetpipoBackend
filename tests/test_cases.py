@@ -14,7 +14,7 @@ class EmployeeTestCase(TestCase):
         app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
             'FLASK_DATABASE_URI')
         app.config['TESTING'] = True
-        app.config['JWT_SECRET_KEY'] = 'THIS IS SECURITY KEY'
+        app.config['JWT_SECRET_KEY'] = os.environ.get('FLASK_SECURITY_KEY')
         app.config['SKIP_AUTH'] = True
         return app
 
