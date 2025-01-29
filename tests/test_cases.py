@@ -1,13 +1,18 @@
+import os
 import json
 import unittest
 from flask_testing import TestCase
 from app.app import app, db
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class EmployeeTestCase(TestCase):
 
     def create_app(self):
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:EugeneMysql123.@127.0.0.1:3306/netpipo'
+        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+            'FLASK_DATABASE_URI')
         app.config['TESTING'] = True
         app.config['JWT_SECRET_KEY'] = 'THIS IS SECURITY KEY'
         app.config['SKIP_AUTH'] = True

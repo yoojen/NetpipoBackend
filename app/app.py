@@ -7,15 +7,19 @@ from flask_restful import Api
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
 from flask_restful import Resource
 from app.helper import jwt_optional_for_tests
+from dotenv import load_dotenv
+import os
+
 
 app = Flask(__name__)
 jwt = JWTManager(app)
 api = Api(app)
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://root:EugeneMysql123.@127.0.0.1:3306/netpipo"
+load_dotenv()
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('FLASK_DATABASE_URI')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = 'THIS IS SECURITY KEY'
+app.config['JWT_SECRET_KEY'] = os.environ.get('FLASK_SECURITY_KEY')
 app.config["JWT_TOKEN_LOCATION"] = ["headers"]
 db.init_app(app)
 
