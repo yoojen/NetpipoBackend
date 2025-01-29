@@ -120,6 +120,7 @@ class EmployeeResource(Resource):
 
 class UserResource(Resource):
 
+    # @jwt_optional_for_tests
     def put(self, user_id=None):
         if not user_id:
             return make_response({"message": "Please provide user id"}, 400)
@@ -129,8 +130,14 @@ class UserResource(Resource):
         if not user:
             return make_response({"message": "No user found"}, 404)
 
+        exist_email = User.find_existing_email(request.form.get('email'))
+        if exist_email:
+            abort(400, "Email is already registered")
+
         try:
             for k, v in dict(request.form).items():
+                if k == 'password':
+                    return make_response({"message": "Password change is not implemented"}, 400)
                 if hasattr(user, k):
                     if getattr(user, k) == v:
                         continue
@@ -143,6 +150,7 @@ class UserResource(Resource):
 
         return make_response({"message": "user is updated successfully"}, 200)
 
+    @jwt_optional_for_tests
     def delete(self, user_id):
         if not user_id:
             return {"message": "Provide an user id"}
@@ -192,7 +200,7 @@ class UserLogin(Resource):
 api.add_resource(EmployeeResource,
                  '/employees/',
                  '/employees/<int:employee_id>')
-api.add_resource(UserResource, '/users/', '/auth/<int:user_id>')
+api.add_resource(UserResource, '/users/', '/users/<int:user_id>')
 api.add_resource(UserRegister, '/auth/register')
 api.add_resource(UserLogin, '/auth/login')
 
