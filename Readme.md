@@ -1,4 +1,4 @@
-## Flask Application Setup Guide
+## Employees Management Application Setup Guide
 
 This guide provides comprehensive instructions for setting up and using your this Flask application, including installing dependencies, setting up the database, running tests, and testing the API using Postman or other test applications.
 
@@ -10,6 +10,7 @@ This guide provides comprehensive instructions for setting up and using your thi
 - [Database Setup](#database-setup)
     - [Running Tests](#running-tests)
     - [Testing the API](#testing-the-API)
+- [Usage](#usage)
 
 
 ## Prerequisites
@@ -53,6 +54,7 @@ Activate the virtual environment:
     source venv/bin/activate
 ```
 ### Installing Packages
+Remember to set up .env file with FLASK_DATABASE_URI and FLASK_SECURITY_KEY for flask jwt extended
 With the virtual environment activated, install the required packages from requirements.txt:
 
 ```
@@ -90,12 +92,49 @@ You must create use profile before making POST, PUT or DELETE request. Thus, fol
 3. Set the request method (GET, POST, PUT, DELETE).
 
 4. Enter the request URL
-    for employees http://localhost:5000/employee/1
-    for auth http://localhost:5000/register/ or http://localhost:5000/login/
+    for employees http://localhost:5000/employee/1  
+    for auth http://localhost:5000/register/ or http://localhost:5000/login/  
     for users http://localhost:5000/users/ 
 
-5. Set the request headers, including the Authorization header for JWT token.
+6. Set the request headers, including the Authorization header for JWT token.
 
-6. Set the request body (if applicable) in form-data format.
+7. Set the request body (if applicable) in form-data format.
 
-7. Send the request and verify the response.
+8. Send the request and verify the response.
+
+## Usage
+Remember to use set request type as form-data
+
+**Description:**
+This endpoint registers a new user.
+
+**Request:**
+POST /register
+```
+    {
+      "email": "email@example.com",
+      "password": "your_password"
+    }
+```
+**Response:**
+```
+    {
+      "message": "Account created successfully"
+    }
+```
+
+POST /login
+```
+    {
+      "email": "user@example.com",
+      "password": "password"
+    }
+```
+
+**Response**:
+
+```
+    {
+      "access_token": "your_jwt_token"
+    }
+```
