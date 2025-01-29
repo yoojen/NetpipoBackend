@@ -53,6 +53,7 @@ Activate the virtual environment:
     source venv/bin/activate
 ```
 ### Installing Packages
+Remember to set up .env file with FLASK_DATABASE_URI and FLASK_SECURITY_KEY for flask jwt extended
 With the virtual environment activated, install the required packages from requirements.txt:
 
 ```
