@@ -47,5 +47,5 @@ class Employee(db.Model):
     @staticmethod
     def find_employee(id):
         """Helper to find user in the db"""
-        employee = db.session.query(Employee).get(id)
+        employee = db.session.get(Employee, id)
         return employee

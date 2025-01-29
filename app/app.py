@@ -6,7 +6,7 @@ from flask import Flask
 from flask_restful import Api
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
 from flask_restful import Resource
-
+from app.helper import jwt_optional_for_tests
 
 app = Flask(__name__)
 jwt = JWTManager(app)
@@ -21,6 +21,7 @@ db.init_app(app)
 
 
 employee_fields = {
+    "id": fields.Integer,
     "email": fields.String,
     "name": fields.String,
     "salary": fields.Integer
@@ -34,7 +35,7 @@ class EmployeeResource(Resource):
             try:
                 employee = Employee.find_employee(employee_id)
                 if not employee:
-                    return make_response({"message": "No employee found"}, 400)
+                    return make_response({"message": "No employee found"}, 404)
                 return make_response({"message": "Retrieved Successfully", "data": marshal(employee, employee_fields)}, 200)
             except Exception as e:
                 print(e)
@@ -43,10 +44,10 @@ class EmployeeResource(Resource):
         employees = db.session.query(Employee).all()
         return make_response({
             "message": "Retrieved Successfully",
-            "data": [marshal(e, employee_fields) for e in employees]
+            "employees": [marshal(e, employee_fields) for e in employees]
         }, 200)
 
-    @jwt_required()
+    @jwt_optional_for_tests
     def post(self):
         name = request.form.get('name')
         email = request.form.get('email')
@@ -68,9 +69,9 @@ class EmployeeResource(Resource):
             print(e)
             return make_response({"message": "Creating employee failed"}, 400)
 
-        return make_response({"status": f"User created with ID {employee.id}"}, 201)
+        return make_response({"message": f"User created with ID {employee.id}", "employee": marshal(employee, employee_fields)}, 201)
 
-    @jwt_required()
+    @jwt_optional_for_tests
     def put(self, employee_id=None):
         if not employee_id:
             return make_response({"message": "Please provide an id"}, 400)
@@ -94,9 +95,9 @@ class EmployeeResource(Resource):
         except Exception as e:
             print(e)
             return make_response({"message": "Something went wrong"}, 400)
-        return make_response({"message": "Employee is updated successfully"}, 200)
+        return make_response({"message": "Employee is updated successfully", "employee": marshal(employee, employee_fields)}, 200)
 
-    @jwt_required()
+    @jwt_optional_for_tests
     def delete(self, employee_id=None):
         if not employee_id:
             return {"message": "Provide an employee id"}
@@ -104,10 +105,10 @@ class EmployeeResource(Resource):
             employee = Employee.find_employee(employee_id)
             if not employee:
                 return make_response({"message": "No employee found"}, 404)
-            print(employee)
+
             db.session.delete(employee)
             db.session.commit()
-            return make_response(204)
+            return make_response({}, 204)
         except Exception as e:
             print(e)
             return make_response({"message": "Something went wrong, unable to delete"}, 400)
