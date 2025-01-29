@@ -27,10 +27,8 @@ class EmployeeResource(Resource):
     def get(self, employee_id=None):
         if employee_id:
             try:
-                employee = db.session.query(
-                    Employee).filter_by(id=employee_id).first()
+                employee = Employee.find_user(employee_id)
                 if not employee:
-                    print(employee)
                     return make_response({"message": "No employee found"}, 400)
                 return make_response({"message": "Retrieved Successfully", "data": marshal(employee, employee_fields)}, 200)
             except Exception as e:
@@ -52,8 +50,8 @@ class EmployeeResource(Resource):
         if (not name) or (not email) or (not position) or (not salary):
             return make_response({"message": "Please provide all required fields"}, 400)
 
-        exist = db.session.query(Employee).filter_by(email=email).first()
-        if exist:
+        exist_email = Employee.find_existing_email(email)
+        if exist_email:
             return make_response({"message": "The email is already registered"}, 409)
 
         try:
@@ -66,23 +64,38 @@ class EmployeeResource(Resource):
 
         return make_response({"status": f"User created with ID {employee.id}"}, 201)
 
-    def update(self, employee_id):
+    def put(self, employee_id=None):
         if not employee_id:
-            return {"status": "Please provide an id"}
-        # employee = db.findEmployee()
-        if 2 < 3:  # if there is no employee
-            return {"status": "No employee found"}
+            return make_response({"message": "Please provide an id"}, 400)
+        employee = Employee.find_user(employee_id)
 
-        print(f"printing form before actual update {request.form}")
-        return {"status": "We are going to update"}
+        if not employee:
+            return make_response({"message": "No employee found"}, 404)
+
+        exist_email = Employee.find_existing_email(request.form.get('email'))
+        if exist_email:
+            abort(400, "Email is already registered")
+
+        try:
+            for k, v in dict(request.form).items():
+                if hasattr(employee, k):
+                    if getattr(employee, k) == v:
+                        continue
+                    setattr(employee, k, v)
+
+            db.session.commit()
+        except Exception as e:
+            print(e)
+            return make_response({"message": "Something went wrong"}, 400)
+        return make_response({"message": "Employee is updated successfully"}, 200)
 
     def delete(self, employee_id):
         if not employee_id:
-            return {"status": "Provide an employee id"}
-        # employee = db.findEmployee()
-        if 2 < 3:  # if there is no employee
-            return {"status": "No employee found"}
-        return {"status": "We are deleting an employee"}
+            return {"message": "Provide an employee id"}
+        employee = Employee.find_user(employee_id)
+        db.session.delete(employee)
+        db.session.commit()
+        return make_response({"messaage": "Deleted successfully"}, 204)
 
 
 class AuthResource(Resource):
@@ -91,8 +104,7 @@ class AuthResource(Resource):
 
 api.add_resource(EmployeeResource,
                  '/employees/',
-                 '/employees/<int:employee_id>',
-                 endpoint='single_employee')
+                 '/employees/<int:employee_id>')
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

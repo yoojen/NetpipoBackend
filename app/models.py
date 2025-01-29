@@ -13,3 +13,15 @@ class Employee(db.Model):
 
     def __repr__(self):
         return f"<Employee {self.name}>"
+
+    @staticmethod
+    def find_existing_email(email):
+        """Helper to find user in the db"""
+        employee = db.session.query(Employee).filter_by(email=email).first()
+        return employee
+
+    @staticmethod
+    def find_user(id):
+        """Helper to find user in the db"""
+        employee = db.session.query(Employee).get(id)
+        return employee
