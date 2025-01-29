@@ -1,4 +1,4 @@
-from flaskr.app import app, HelloWorld
+from app.app import app, HelloWorld
 from flask_restful import Api
 
 api = Api(app)
