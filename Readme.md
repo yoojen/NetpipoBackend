@@ -1,4 +1,4 @@
-## Flask Application Setup Guide
+## Employees Management Application Setup Guide
 
 This guide provides comprehensive instructions for setting up and using your this Flask application, including installing dependencies, setting up the database, running tests, and testing the API using Postman or other test applications.
 
