@@ -10,6 +10,7 @@ This guide provides comprehensive instructions for setting up and using your thi
 - [Database Setup](#database-setup)
     - [Running Tests](#running-tests)
     - [Testing the API](#testing-the-API)
+- [Usage](#usage)
 
 
 ## Prerequisites
@@ -100,3 +101,40 @@ You must create use profile before making POST, PUT or DELETE request. Thus, fol
 7. Set the request body (if applicable) in form-data format.
 
 8. Send the request and verify the response.
+
+## Usage
+Remember to use set request type as form-data
+
+**Description:**
+This endpoint registers a new user.
+
+**Request:**
+POST /register
+```
+    {
+      "email": "email@example.com",
+      "password": "your_password"
+    }
+```
+**Response:**
+```
+    {
+      "message": "Account created successfully"
+    }
+```
+
+POST /login
+```
+    {
+      "email": "user@example.com",
+      "password": "password"
+    }
+```
+
+**Response**:
+
+```
+    {
+      "access_token": "your_jwt_token"
+    }
+```
